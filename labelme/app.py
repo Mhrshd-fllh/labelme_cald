@@ -33,7 +33,7 @@ from labelme.widgets import ToolBar
 from labelme.widgets import UniqueLabelQListWidget
 from labelme.widgets import ZoomWidget
 
-from . import utils
+import utils
 
 # FIXME
 # - [medium] Set max zoom value to something big enough for FitWidth/Window
@@ -108,7 +108,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.labelList = LabelListWidget()
         self.lastOpenDir = None
-
         self.flag_dock = self.flag_widget = None
         self.flag_dock = QtWidgets.QDockWidget(self.tr("Flags"), self)
         self.flag_dock.setObjectName("Flags")
@@ -117,7 +116,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.loadFlags({k: False for k in config["flags"]})
         self.flag_dock.setWidget(self.flag_widget)
         self.flag_widget.itemChanged.connect(self.setDirty)
-
+        self.train_button = QtWidgets.QPushButton('Click to go to next step!', self)
         self.labelList.itemSelectionChanged.connect(self.labelSelectionChanged)
         self.labelList.itemDoubleClicked.connect(self.editLabel)
         self.labelList.itemChanged.connect(self.labelItemChanged)
@@ -125,7 +124,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Polygon Labels"), self)
         self.shape_dock.setObjectName("Labels")
         self.shape_dock.setWidget(self.labelList)
+        self.train_button.clicked.connect(self.TrainButton)
 
+        self.train_layout = QtWidgets.QVBoxLayout(self)
+        self.train_layout.addWidget(self.train_button)
+        container_widget = QtWidgets.QWidget(self)
+        container_widget.setLayout(self.train_layout)
+        
         self.uniqLabelList = UniqueLabelQListWidget()
         self.uniqLabelList.setToolTip(
             self.tr(
@@ -184,6 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
 
         self.setCentralWidget(scrollArea)
+        self.setCentralWidget(container_widget)
 
         features = QtWidgets.QDockWidget.DockWidgetFeatures()
         for dock in ["flag_dock", "label_dock", "shape_dock", "file_dock"]:
@@ -511,7 +517,7 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         )
         self.zoomWidget.setEnabled(False)
-
+        
         zoomIn = action(
             self.tr("Zoom &In"),
             functools.partial(self.addZoom, 1.1),
@@ -854,6 +860,7 @@ class MainWindow(QtWidgets.QMainWindow):
             Qt.Vertical: {},
         }  # key=filename, value=scroll_value
 
+
         if filename is not None and osp.isdir(filename):
             self.importDirImages(filename, load=False)
         else:
@@ -887,6 +894,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoomWidget.valueChanged.connect(self.paintCanvas)
 
         self.populateModeActions()
+
+
 
         # self.firstStart = True
         # if self.firstStart:
@@ -2105,3 +2114,5 @@ class MainWindow(QtWidgets.QMainWindow):
                     images.append(relativePath)
         images = natsort.os_sorted(images)
         return images
+    def TrainButton(self):
+        pass        
