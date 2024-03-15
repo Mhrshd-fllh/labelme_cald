@@ -124,12 +124,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Polygon Labels"), self)
         self.shape_dock.setObjectName("Labels")
         self.shape_dock.setWidget(self.labelList)
-        self.train_button.clicked.connect(self.TrainButton)
-
-        self.train_layout = QtWidgets.QVBoxLayout(self)
-        self.train_layout.addWidget(self.train_button)
-        container_widget = QtWidgets.QWidget(self)
-        container_widget.setLayout(self.train_layout)
+        # self.train_button.clicked.connect(self.TrainButton)
         
         self.uniqLabelList = UniqueLabelQListWidget()
         self.uniqLabelList.setToolTip(
@@ -162,9 +157,15 @@ class MainWindow(QtWidgets.QMainWindow):
         fileListWidget = QtWidgets.QWidget()
         fileListWidget.setLayout(fileListLayout)
         self.file_dock.setWidget(fileListWidget)
-
         self.zoomWidget = ZoomWidget()
         self.setAcceptDrops(True)
+        train_button_layout = QtWidgets.QVBoxLayout()
+        train_button_layout.setContentsMargins(0, 0, 0, 0)
+        train_button_layout.setSpacing(0)
+        train_button_layout.addWidget(self.train_button)
+        train_button_widget = QtWidgets.QWidget()
+        train_button_widget.setLayout(train_button_layout)
+        self.file_dock.setWidget(train_button_widget)
 
         self.canvas = self.labelList.canvas = Canvas(
             epsilon=self._config["epsilon"],
@@ -187,9 +188,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.shapeMoved.connect(self.setDirty)
         self.canvas.selectionChanged.connect(self.shapeSelectionChanged)
         self.canvas.drawingPolygon.connect(self.toggleDrawingSensitive)
-
-        self.setCentralWidget(scrollArea)
-        self.setCentralWidget(container_widget)
 
         features = QtWidgets.QDockWidget.DockWidgetFeatures()
         for dock in ["flag_dock", "label_dock", "shape_dock", "file_dock"]:
@@ -2114,5 +2112,3 @@ class MainWindow(QtWidgets.QMainWindow):
                     images.append(relativePath)
         images = natsort.os_sorted(images)
         return images
-    def TrainButton(self):
-        pass        
